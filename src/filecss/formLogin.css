@@ -12,6 +12,7 @@ Form{
 }
 
 .sfondo{
+    position: fixed;
     background-image: url('../img/tubi.jpg');
     background-size: cover !important;
     height: 100%;

@@ -65,7 +65,83 @@ const Configurazione = ({}) =>{
         return (
             <>
                 <Intestazione />
-                    <br /> <br />
+                    <div>
+                        <br />
+                        <div class = 'box'>
+                            <center>
+                                <div class = 'columns'>
+                                    <div class = 'column'>
+                                        <p class = 'title is-3'>
+                                            Tipologia:
+                                        </p>
+                                    </div>
+                                    <div class = 'column'>
+                                        <div class = "select is-info is-medium"> 
+                                            <select name = 'typology' id = 'typology' onChange = {(e) => settaggioTipologia(e)}>
+                                                {typologies.map((t, i) => <DropDownList key = {'typology_'+i} value = {t}/>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class = 'column'>
+                                        <p class = 'title is-3'>
+                                            Corsa:
+                                        </p>
+                                    </div>
+                                    <div class = "select is-info is-medium"> 
+                                        <select 
+                                            name = 'strokes' 
+                                            id = 'strokes' 
+                                            className = {className} 
+                                            onChange = {(e) => {setStroke(e.currentTarget.value)}}
+                                        >
+                                            {/* {this.state.strokesList} */}
+                                            {strokeList.map((s, i) => <DropDownList key = {'typology_'+i} value = {s}/>)}
+                                        </select>
+                                    </div>
+                                    <div class = 'column'>
+                                        <p class = 'title is-3'>
+                                            Diametro:
+                                        </p>
+                                    </div>
+                                    <div class = "select is-info is-medium"> 
+                                        <select 
+                                            name = 'diameters' 
+                                            id = 'diameters' 
+                                            className = {className} 
+                                            onChange = {(e) => {setDiameter(e.currentTarget.value)}}
+                                        >
+                                            {/* {this.state.strokesList} */}
+                                            {diameters.map((d, i) => <DropDownList key={'diameters_'+i} value={d}/>)}
+                                        </select>
+                                    </div>
+                                </div>
+                            </center>
+                            <br />
+                        </div>
+                            <br />
+                        <div class = 'box'>
+                            <center>
+                                <button class = 'button is-info is-medium is-outlined' onClick = {() => calculateCost()}>Calcola prezzo</button>
+                            </center>
+                            <br />
+                        </div>
+                        <div class = 'box'>
+                            <center>
+                                <section class = 'has-background-light p-5'>
+                                    <p class = 'title is-3'>
+                                        Prezzo
+                                    </p>
+                                </section>
+                                <section class = 'section'>
+                                    <p class = 'title is-3'>
+                                        {cost}
+                                    </p>
+                                </section>
+                            </center>
+                        </div>
+                    </div>
+                      
+                    {/*<br /> <br />
                             <div className="box is-3">
                                 <p class="title is-2}">
                                     tipologia:
@@ -87,7 +163,7 @@ const Configurazione = ({}) =>{
                                     onChange = {(e) => {setStroke(e.currentTarget.value)}}
                                     >
                                         {/* {this.state.strokesList} */}
-                                        {strokeList.map((s, i) => <DropDownList key={'typology_'+i} value={s}/>)}
+        {/*                                {strokeList.map((s, i) => <DropDownList key={'typology_'+i} value={s}/>)}
                                     </select>
                                 </div>
                                 <br /> <br />
@@ -102,7 +178,7 @@ const Configurazione = ({}) =>{
                                     onChange = {(e) => {setDiameter(e.currentTarget.value)}}
                                     >
                                         {/* {this.state.strokesList} */}
-                                        {diameters.map((d, i) => <DropDownList key={'diameters_'+i} value={d}/>)}
+       {/*                                 {diameters.map((d, i) => <DropDownList key={'diameters_'+i} value={d}/>)}
                                     </select>
                                 </div>
                             </div>
@@ -119,7 +195,7 @@ const Configurazione = ({}) =>{
                                         {cost}
                                     </p>
                                 </center>
-                            </div>            
+                            </div>          */}  
             </>
         );
     }
