@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setConfig, setCounter } from "../redux/reducers/routeSlice";
 import {Message, Button, Select} from "semantic-ui-react";
 import '../filecss/configurazione.css';
 import Intestazione from './intestazione';
@@ -15,6 +17,9 @@ const Configurazione = ({}) =>{
     const [diameter, setDiameter] = useState([]);
     const [cost, setCost] = useState('');
     
+    const config = useSelector(state => state.route.config);
+    const dispatch = useDispatch();
+
     const settaggioTipologia = async (e) => {
         let value = e.currentTarget.value;
         setTypology(value);
@@ -23,6 +28,7 @@ const Configurazione = ({}) =>{
 
     useEffect(() => {
         let tipologyURL = 'http://localhost:3000/tipology';
+        let configurationUrl = 'http://localhost:3000/configuration';
         fetch(tipologyURL)
             .then(response => response.json())
             .then(data => {
@@ -32,6 +38,13 @@ const Configurazione = ({}) =>{
             .catch(err => {
                 console.log(err);
             })
+        fetch(configurationUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                dispatch(setConfig(data))
+            })
+            .catch(err => {console.log(err)})
     }, []) 
 
     useEffect(() => {
