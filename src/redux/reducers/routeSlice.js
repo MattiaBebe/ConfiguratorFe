@@ -11,6 +11,9 @@ const routeSlice = createSlice({
     setConfig(state, action) {
       state.config = action.payload;
     },
+    setCurrentRoute(state, action){
+      state.currentRuote = action.payload;
+    },
     setCounter(state, action){
       state.testCounter = action.payload;
     }
@@ -20,7 +23,8 @@ const routeSlice = createSlice({
 // Export actions
 export const { 
   setConfig,
-  setCounter
+  setCounter,
+  setCurrentRoute
 } = routeSlice.actions;
 
 // Export reducer
