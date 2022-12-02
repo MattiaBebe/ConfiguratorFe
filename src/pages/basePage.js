@@ -7,8 +7,10 @@ import Intestazione from "../components/intestazione";
 import { setUseProxies } from "immer";
 import Card from "../components/card";
 import Configurazione from '../components/configurazione';
+import ConfigurationPage from "./configurationPage";
 
 const homepageIcon = require('../img/homepage.png')
+let categories = [];
 
 const BasePage = () => {
 
@@ -18,37 +20,45 @@ const BasePage = () => {
     const breadcrumb = useSelector(state => state.route.breadcrumb);
     const [categoryList, setCategoryList] = useState();
     const [selezione, setSelezione] = useState(true);
-    const [categories, setCategories] = useState([]);
+    const [tipology, setTipology] = useState();
+    const [tipologyName, setTipologyName] = useState();
+    const CONFIGURATIONURL = 'http://localhost:3000/configuration/';
 
     useEffect(() => {
-        let configurationUrl = 'http://localhost:3000/configuration';
-        fetch(configurationUrl)
+        fetch(CONFIGURATIONURL)
         .then(response => response.json())
         .then(data => {
             dispatch(setConfig(data))
-            dispatch(setCurrentRoute(configurationUrl))
+            dispatch(setCurrentRoute(CONFIGURATIONURL))
         })
         .catch(err => {console.log(err)})       
     }, [])
 
     useEffect(() => {
-        let configurationUrl = directory;
-        fetch(configurationUrl)
+        fetch(directory)
         .then(response => response.json())
         .then(data => {
            const list = [];
-           data.forEach((category, i) => {
-               if(category.name){
-                    let val = category.name;
-                    let image = category.image;
-                    list.push(<div class="column"> <Card value={val} imageUrl={image} onClick={(e) => changeDirectory(e)} /> </div>)
-               }
-               else{
-                    let val = category.value;
-                    list.push(list.push(<div class="column"> <Card value={val} onClick={(e) => changeDirectory(e)} /> </div>))
-               }
-           });
-           generateList(list)
+           if(data.level === 'branch'){
+                data.response.forEach((category, i) => {
+                    if(category.name){
+                        let val = category.name;
+                        let image = category.image;
+                        list.push(<div class="column"> <Card value={val} imageUrl={image} onClick={(e) => changeDirectory(e)} /> </div>)
+                    }
+                    else{
+                        let val = category.value;
+                        list.push(list.push(<div class="column"> <Card value={val} onClick={(e) => changeDirectory(e)} /> </div>))
+                    }
+                });
+                generateList(list)
+            }
+            else{
+                setTipology(data.tipology);
+                setTipologyName(data.tipologyName);
+                dispatch(setSelezione(false));
+            }
+           
         })
     }, [directory])
 
@@ -57,17 +67,25 @@ const BasePage = () => {
     }
 
     const changeDirectory = (e) => {
-        const newDirectory = directory+'/'+e.target.value;
+        categories.push(e.target.value);
+        // const newDirectory = directory+'/'+categories;
+        let newDirectory;
+        if(directory === CONFIGURATIONURL){
+            newDirectory = `${directory}${e.target.value}`
+        }
+        else{
+            newDirectory = `${directory}@${e.target.value}`
+        }
         const newBredcrumb = breadcrumb+'/'+e.target.value;
-        setCategories(categories.push(e.target.value));
+        dispatch(setCurrentRoute(newDirectory))
         dispatch(setBreadcrumb(newBredcrumb))
         dispatch(setCurrentRoute(newDirectory))
     }
 
     const homepage = () => {
-        const newDirectory = 'http://localhost:3000/configuration';
+        categories = [];
+        const newDirectory = CONFIGURATIONURL;
         const newBredcrumb = 'HOME';
-        setCategories([]);
         dispatch(setBreadcrumb(newBredcrumb));
         dispatch(setCurrentRoute(newDirectory));
     }
@@ -102,7 +120,7 @@ const BasePage = () => {
     }  
     if(selezione === false){
         return(
-            <Configurazione />
+            <ConfigurationPage tipology={tipology} tipologyName={tipologyName}/>
         )
     }
 }

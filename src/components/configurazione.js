@@ -6,13 +6,13 @@ import '../filecss/configurazione.css';
 import Intestazione from './intestazione';
 import DropDownList from "./dropDownList";
 
-const Configurazione = ({}) =>{
+const Configurazione = ({tipology}) =>{
 
     const [typologies, setTypologies] = useState([]);
     const [stroke, setStroke] = useState('');
     const [strokeList, setStrokeList] = useState([]);
     const [className, setClassName] = useState('hidden');
-    const [typology, setTypology] = useState('');
+    const [typology, setTypology] = useState(tipology);
     const [diameters, setDiameters] = useState([]);
     const [diameter, setDiameter] = useState([]);
     const [cost, setCost] = useState('');

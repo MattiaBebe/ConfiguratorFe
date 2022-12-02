@@ -40,3 +40,9 @@
 .padding{
   padding: 10px !important;
 }
+
+.header{
+  padding: 20px;
+  background-color: dimgrey;
+  color: white !important;
+}
