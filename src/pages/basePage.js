@@ -18,7 +18,7 @@ const BasePage = () => {
     const breadcrumb = useSelector(state => state.route.breadcrumb);
     const [categoryList, setCategoryList] = useState();
     const [selezione, setSelezione] = useState(true);
-    cosnt [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         let configurationUrl = 'http://localhost:3000/configuration';

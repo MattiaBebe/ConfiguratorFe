@@ -4,8 +4,9 @@ const routeSlice = createSlice({
   name: "route",
   initialState: {
       config: null,
-      currentRuote: '/',
-      testCounter: 3
+      currentRuote: 'http://localhost:3000/configuration',
+      testCounter: 3,
+      breadcrumb: '/HOME'
   },
   reducers: {
     setConfig(state, action) {
@@ -16,6 +17,9 @@ const routeSlice = createSlice({
     },
     setCounter(state, action){
       state.testCounter = action.payload;
+    },
+    setBreadcrumb(state, action){
+      state.breadcrumb = action.payload;
     }
   }
 });
@@ -24,7 +28,8 @@ const routeSlice = createSlice({
 export const { 
   setConfig,
   setCounter,
-  setCurrentRoute
+  setCurrentRoute,
+  setBreadcrumb
 } = routeSlice.actions;
 
 // Export reducer

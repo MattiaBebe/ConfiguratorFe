@@ -1,32 +1,36 @@
-const Card = (props) => {
+const path = require('../img/cilinders.jpeg')
+
+const Card = ({value, onClick, imageUrl}) => {
+    
+    const execute = onClick;
+    let image
+    //if(imageUrl){image = require(imageUrl)};
     return(
         <>
         <div class="card">
         <div class="card-image">
             <figure class="image is-4by3">
-            <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image" />
+            {/* <Image source={require(imageURL)} /> */}
+            <img src={path} alt="Placeholder image" />
             </figure>
         </div>
         <div class="card-content">
             <div class="media">
             <div class="media-left">
                 <figure class="image is-48x48">
-                <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image" />
+                <img src={path} alt="Placeholder image" />
                 </figure>
             </div>
             <div class="media-content">
-                <p class="title is-4">John Smith</p>
-                <p class="subtitle is-6">@johnsmith</p>
+                <p class="title is-4">{value}</p>
+                <p class="subtitle is-6">@{value}</p>
             </div>
             </div>
-
-            <div class="content">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Phasellus nec iaculis mauris. 
             <center>
-                <button value={''} onClick={''}> {''} </button>
+                <div class="content">
+                    <button class='button is-success' value={value} onClick={execute}> {value} </button>
+                </div>
             </center>
-            </div>
         </div>
         </div>
         </>
