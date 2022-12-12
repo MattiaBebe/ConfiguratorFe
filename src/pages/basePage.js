@@ -21,7 +21,9 @@ const BasePage = () => {
     const [categoryList, setCategoryList] = useState();
     const [selezione, setSelezione] = useState(true);
     const [tipology, setTipology] = useState();
+    const [tipologyIndex, setTipologyIndex] = useState();
     const [tipologyName, setTipologyName] = useState();
+    const [subcategory, setSubcategory] = useState();
     const CONFIGURATIONURL = 'http://localhost:3000/configuration/';
 
     useEffect(() => {
@@ -40,6 +42,7 @@ const BasePage = () => {
         .then(data => {
            const list = [];
            if(data.level === 'branch'){
+                //data.response.find() potrei usare il find
                 data.response.forEach((category, i) => {
                     if(category.name){
                         let val = category.name;
@@ -54,8 +57,10 @@ const BasePage = () => {
                 generateList(list)
             }
             else{
+                setSubcategory(data.subcategory);
                 setTipology(data.tipology);
                 setTipologyName(data.tipologyName);
+                setTipologyIndex(data.index);
                 dispatch(setSelezione(false));
             }
            
@@ -68,7 +73,6 @@ const BasePage = () => {
 
     const changeDirectory = (e) => {
         categories.push(e.target.value);
-        // const newDirectory = directory+'/'+categories;
         let newDirectory;
         if(directory === CONFIGURATIONURL){
             newDirectory = `${directory}${e.target.value}`
@@ -120,7 +124,7 @@ const BasePage = () => {
     }  
     if(selezione === false){
         return(
-            <ConfigurationPage tipology={tipology} tipologyName={tipologyName}/>
+            <Configurazione tipology={tipology} tipologyName={tipologyName} tipologyIndex={tipologyIndex} subcategory={subcategory}/>
         )
     }
 }
