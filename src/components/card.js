@@ -7,28 +7,28 @@ const Card = ({value, onClick, imageUrl}) => {
     //if(imageUrl){image = require(imageUrl)};
     return(
         <>
-        <div class="card">
-        <div class="card-image">
-            <figure class="image is-4by3">
+        <div className="card">
+        <div className="card-image">
+            <figure className="image is-4by3">
             {/* <Image source={require(imageURL)} /> */}
             <img src={path} alt="Placeholder image" />
             </figure>
         </div>
-        <div class="card-content">
-            <div class="media">
-            <div class="media-left">
-                <figure class="image is-48x48">
+        <div className="card-content">
+            <div className="media">
+            <div className="media-left">
+                <figure className="image is-48x48">
                 <img src={path} alt="Placeholder image" />
                 </figure>
             </div>
-            <div class="media-content">
-                <p class="title is-4">{value}</p>
-                <p class="subtitle is-6">@{value}</p>
+            <div className="media-content">
+                <p className="title is-4">{value}</p>
+                <p className="subtitle is-6">@{value}</p>
             </div>
             </div>
             <center>
-                <div class="content">
-                    <button class='button is-success' value={value} onClick={execute}> {value} </button>
+                <div className="content">
+                    <button className='button is-success' value={value} onClick={execute}> {value} </button>
                 </div>
             </center>
         </div>

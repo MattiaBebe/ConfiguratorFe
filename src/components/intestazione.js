@@ -14,11 +14,8 @@ import logo from '../img/logoCypag.svg'
             if(this.props.tipology){
                 return(
                     <>
-                        <h1 class="title header">
-                            {this.props.tipology}
-                        </h1>
-                        <h1 class="title is-5 header">
-                            {this.props.subcategory}
+                        <h1 className="title header">
+                            {this.props.tipology}   {this.props.subcategory}
                         </h1>
                     </>
                 )

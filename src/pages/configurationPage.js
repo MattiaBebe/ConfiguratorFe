@@ -2,9 +2,9 @@ const ConfigurationPage = ({tipology, tipologyName}) =>{
 
     return(
         <>
-        <div class="columns header">
-            <div class="column">
-                <h1 class="title">
+        <div className="columns header">
+            <div className="column">
+                <h1 className="title">
                     <center>
                     {tipologyName}
                     </center>

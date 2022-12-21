@@ -24,6 +24,8 @@ const BasePage = () => {
     const [tipologyIndex, setTipologyIndex] = useState();
     const [tipologyName, setTipologyName] = useState();
     const [subcategory, setSubcategory] = useState();
+    const [indexList, setIndexList] = useState();
+    const [charatteristicsList, setCharatteristicsList] = useState([]);
     const CONFIGURATIONURL = 'http://localhost:3000/configuration/';
 
     useEffect(() => {
@@ -42,16 +44,22 @@ const BasePage = () => {
         .then(data => {
            const list = [];
            if(data.level === 'branch'){
-                //data.response.find() potrei usare il find
                 data.response.forEach((category, i) => {
                     if(category.name){
                         let val = category.name;
                         let image = category.image;
-                        list.push(<div class="column"> <Card value={val} imageUrl={image} onClick={(e) => changeDirectory(e)} /> </div>)
+                        list.push(
+                            <div key={'div-card-'+i}className="column is-one-third"> 
+                                <Card value={val} key={'card-'+i} imageUrl={image} onClick={(e) => changeDirectory(e)} /> 
+                            </div>)
+                        setIndexList(i);
                     }
                     else{
                         let val = category.value;
-                        list.push(list.push(<div class="column"> <Card value={val} onClick={(e) => changeDirectory(e)} /> </div>))
+                        list.push(list.push(
+                            <div key={'div-card-'+i} className="column is-one-third"> 
+                                <Card value={val} key={'card-'+i} onClick={(e) => changeDirectory(e)} /> 
+                            </div>))
                     }
                 });
                 generateList(list)
@@ -61,6 +69,7 @@ const BasePage = () => {
                 setTipology(data.tipology);
                 setTipologyName(data.tipologyName);
                 setTipologyIndex(data.index);
+                setCharatteristicsList(data.charatteristics);
                 dispatch(setSelezione(false));
             }
            
@@ -99,32 +108,31 @@ const BasePage = () => {
             <>
                 <Intestazione />
                     <br />
-                    <h1 class="title is-6 padding">
-                        {breadcrumb}
-                    </h1>
-                    <div class="columns padding"> 
-                        {categoryList?.map(category => { return(category)})}
-                    </div>
-                    <div class="columns padding">
-                        <div class="column">
+                    <div className="columns padding">
+                        <div className="column">
                             <center>
                                 <img src={homepageIcon} onClick={() => homepage()}/> 
                             </center>
                         </div>
                     </div>
-                    
+                    <h1 className="title is-6 padding">
+                        {breadcrumb}
+                    </h1>
+                    <div className="columns is-multiline is-centered"> 
+                        {categoryList?.map(category => { return(category)})}
+                    </div>
             </>
         )
     }
 
     if(selezione === true){
         return(
-            generateSelectionPage()
+                generateSelectionPage()
         )
     }  
     if(selezione === false){
         return(
-            <Configurazione tipology={tipology} tipologyName={tipologyName} tipologyIndex={tipologyIndex} subcategory={subcategory}/>
+            <Configurazione tipology={tipology} tipologyName={tipologyName} tipologyIndex={tipologyIndex} subcategory={subcategory} charatteristics={charatteristicsList}/>
         )
     }
 }
