@@ -19,8 +19,9 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
     const [charatteristicsList, setCharatteristicsList] = useState(charatteristics);
     const [changes, setChanges] = useState([]);
     let [percentageList, setPercentageList] = useState([]);
-    const [absoluteList, setAbsoluteList] = useState([])
-    const [selectedOption, setSelectedOption] = useState([]);
+    let [absoluteList, setAbsoluteList] = useState([])
+    let [numberList, setNumberList] = useState([]);
+    let [selectedOption, setSelectedOption] = useState([]);
     
     const config = useSelector(state => state.route.config);
     const dispatch = useDispatch();
@@ -81,14 +82,18 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
                 absoluteList?.map((value) => {
                     newCost = Number(newCost) + Number(value.mm * value.value);
                 })
+                numberList?.map((number) => {
+                    newCost = Number(newCost) + Number(number.value);
+                })
                 setCost(Number(newCost).toFixed(2));
             }
             catch(e){console.log(e)}
         })
-    }, [stroke, diameter, percentageList, absoluteList])
+    }, [stroke, diameter, percentageList, absoluteList, numberList])
 
-    const setVariables = (e) => {
+    const setVariables = (e, type) => {
         const key = e.target.id;
+        let value = e.target.value;
         setCharatteristicsList([...charatteristics]);
         let carat = charatteristicsList?.find(carat => carat.key === key)
         let caratteristicsValorizationURL = 'http://localhost:3000/caratteristicsValorization/'+tipology+'/'+diameter+'/'+tipologyIndex+'/'+carat.key;
@@ -97,23 +102,52 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
         .then(data => {
             switch(typeof(data.value)){
                 case 'number':
-                    let list = []
-                    list.push({key: key, value: data.value, mm: Number(e.target.value)});
-                    setAbsoluteList([...list]);
+                    switch(type){
+                        case 'special-int':
+                            let list = []
+                            list.push({key: key, value: data.value, mm: Number(e.target.value)});
+                            setAbsoluteList([...list]);
+                        case 'int':
+                        case 'bool':
+                            if(e.target.value === 'no'){
+                                numberList.push({key: key, value: data.value});
+                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+                            }
+                            else{
+                                try{
+                                    numberList = numberList.filter(obj => {return obj.key !== key});
+                                    selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
+                                }
+                                catch(e){console.log(e)}
+                            }
+                            setSelectedOption([...selectedOption]);
+                            setNumberList([...numberList]);
+                    }
                 case 'string':
-                    let newSelectedOption = [];
-                    if(e.target.value === 'no'){
-                        let val = data.value.split('%')
-                        val = 1 + Math.floor(val[0])/100;
-                        percentageList.push({key: key, value: val});
-                        newSelectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+                    let val = data.value.split('%')
+                    switch(type){
+                        case 'int':
+                            if(value === '' || value === '0'){
+                                numberList = numberList.filter(carat => {return carat.key !== key})
+                            }
+                            else{
+                                if(numberList?.filter(carat => {return carat.key === key && carat.value === val[0]}).length === 0){
+                                    numberList.push({key: key, value: val[0]})
+                                }
+                            }
+                        case 'bool':
+                            if(e.target.value === 'no'){
+                                val = 1 + Math.floor(val[0])/100;
+                                percentageList.push({key: key, value: val});
+                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+                            }
+                            else{
+                                percentageList = percentageList.filter(perc => {return perc.key !== key});
+                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
+                            }           
                     }
-                    else{
-                        percentageList = percentageList.filter(perc => {return perc.key !== key});
-                        newSelectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
-                    }
-                
-                    setSelectedOption([...newSelectedOption]);
+                    setNumberList([...numberList]);
+                    setSelectedOption([...selectedOption]);
                     setPercentageList([...percentageList])
             }
         })
@@ -127,30 +161,31 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
             })
         }
         if(charatteristics){
-            let carat = charatteristics.map(carat => {
-                let thisOption = selectedOption?.find(option => option.key == carat.key);
-                switch(carat.type){
+            let carat = charatteristics.map(option => {
+                let thisOption = selectedOption?.find(value => value.key === option.key);
+                switch(option.type){
                     case 'bool':
                         return (
                             <>
                             <div className="column is-one-quarter">
                                 <p className="title is-5">
-                                    <b>{carat.value}</b>
+                                    <b>{option.value}</b>
                                 </p>                    
                                 <div className="buttons">
-                                    <button className={thisOption.css} id={carat.key} value={thisOption.selectedValue} onClick={(e) => setVariables(e)}>{thisOption.selectedValue}</button>
+                                    <button className={thisOption.css} id={option.key} value={thisOption.selectedValue} onClick={(e) => setVariables(e, option.type)}>{thisOption.selectedValue}</button>
                                 </div>
                             </div>
                             </>
                         )
-                    case 'int' || 'special-int':
+                    case 'special-int':
+                    case 'int':
                         return(
                             <>
                             <div className="column is-one-quarter">
                                 <p className="title is-5">
-                                    <b>{carat.value}</b>    
+                                    <b>{option.value}</b>    
                                 </p>
-                                <input type="text" className="input is-normal" id={carat.key} onChange={(e) => setVariables(e)}/> 
+                                <input type="text" className="input is-normal" id={option.key} onChange={(e) => setVariables(e, option.type)}/> 
                             </div>
                             </>
                         )
