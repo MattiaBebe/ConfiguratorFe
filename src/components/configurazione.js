@@ -7,6 +7,7 @@ import Intestazione from './intestazione';
 import DropDownList from "./dropDownList";
 import { defaultEqualityCheck } from "reselect";
 import { castDraft } from "immer";
+import hierarcky from "../utilities/codeHierarky";
 
 const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, charatteristics}) =>{
 
@@ -22,7 +23,10 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
     let [absoluteList, setAbsoluteList] = useState([])
     let [numberList, setNumberList] = useState([]);
     let [selectedOption, setSelectedOption] = useState([]);
-    
+    let [codeList, setCodeList] = useState([]);
+    let [mm, setMM] = useState();
+    let [code, setCode] = useState('');
+
     const config = useSelector(state => state.route.config);
     const dispatch = useDispatch();
 
@@ -36,6 +40,31 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
             })
             .catch(err => {console.log(err)})
     }, []) 
+
+    useEffect(() => {
+        console.log(codeList);
+        let code = '';
+        code = subcategory.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+        console.log(hierarcky);
+        console.log(codeList);
+        hierarcky.map(cat => {
+            if(cat.key === 'diametro'){
+                code = code + diameter + '/'
+            }
+            if(cat.key === 'corsa'){
+                code = code + stroke;
+            }
+            codeList?.map(value => {
+                if(value.key === cat.key){
+                    code = code + cat.value
+                }
+                if(cat.key === 'STELO PROLUNGATO - ROD EXTENSION (mm)' && value.key === 'STELO PROLUNGATO - ROD EXTENSION (mm)'){
+                    code = code + mm;
+                }
+            })
+        })
+        setCode(code);
+    },[codeList, diameter, stroke]);
 
     useEffect(() => {
         if(tipology){
@@ -92,65 +121,100 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
     }, [stroke, diameter, percentageList, absoluteList, numberList])
 
     const setVariables = (e, type) => {
-        const key = e.target.id;
-        let value = e.target.value;
-        setCharatteristicsList([...charatteristics]);
-        let carat = charatteristicsList?.find(carat => carat.key === key)
-        let caratteristicsValorizationURL = 'http://localhost:3000/caratteristicsValorization/'+tipology+'/'+diameter+'/'+tipologyIndex+'/'+carat.key;
-        fetch(caratteristicsValorizationURL)
-        .then(response => response.json())
-        .then(data => {
-            switch(typeof(data.value)){
-                case 'number':
-                    switch(type){
-                        case 'special-int':
-                            let list = []
-                            list.push({key: key, value: data.value, mm: Number(e.target.value)});
-                            setAbsoluteList([...list]);
-                        case 'int':
-                        case 'bool':
-                            if(e.target.value === 'no'){
-                                numberList.push({key: key, value: data.value});
-                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+        let key;
+        let value;
+        if(type === 'list'){
+            key = e.target.value;
+            value = e.target.id;
+        }
+        else{
+            key = e.target.id;
+            value = e.target.value;
+        }
+        if(e.target.value !== 'none'){
+            setCharatteristicsList([...charatteristics]);
+            let carat = charatteristicsList?.find(carat => carat.key === key)
+            let caratteristicsValorizationURL = 'http://localhost:3000/caratteristicsValorization/'+tipology+'/'+diameter+'/'+tipologyIndex+'/'+key;
+            fetch(caratteristicsValorizationURL)
+            .then(response => response.json())
+            .then(data => {
+                switch(typeof(data.value)){
+                    case 'number':
+                        switch(type){
+                            case 'special-int':
+                                let list = []
+                                list.push({key: key, value: data.value, mm: Number(e.target.value)});
+                                if(!codeList.find(code => code.key === key)){codeList.push({key: key});}
+                                setCodeList([...codeList]);
+                                setMM(Number(e.target.value));
+                                setAbsoluteList([...list]);
+                                break;
+                            case 'int':
+                            case 'bool':
+                                if(e.target.value === 'no'){
+                                    numberList.push({key: key, value: data.value});
+                                    codeList.push({key: key});
+                                    selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+                                }
+                                else{
+                                    try{
+                                        codeList = codeList.filter(code => code.key !== key);
+                                        numberList = numberList.filter(obj => {return obj.key !== key});
+                                        selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
+                                    }
+                                    catch(e){console.log(e)}
+                                }
+                                setCodeList([...codeList]);
+                                setSelectedOption([...selectedOption]);
+                                setNumberList([...numberList]);
+                                break;
                             }
-                            else{
-                                try{
-                                    numberList = numberList.filter(obj => {return obj.key !== key});
+                    case 'string':
+                        let val = data?.value.split('%');
+                        switch(type){
+                            case 'int':
+                                if(value === '' || value === '0'){
+                                    codeList = codeList.filter(code => code.key !== key);
+                                    numberList = numberList.filter(carat => {return carat.key !== key})
+                                }
+                                else{
+                                    if(numberList?.filter(carat => {return carat.key === key && carat.value === val[0]}).length === 0){
+                                        codeList.push({key: key});
+                                        numberList.push({key: key, value: val[0]})
+                                    }
+                                }
+                                break;
+                            case 'bool':
+                                if(e.target.value === 'no'){
+                                    val = 1 + Math.floor(val[0])/100;
+                                    percentageList.push({key: key, value: val});
+                                    codeList.push({key: key});
+                                    selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
+                                }
+                                else{
+                                    codeList = codeList.filter(code => code.key !== key);
+                                    percentageList = percentageList.filter(perc => {return perc.key !== key});
                                     selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
                                 }
-                                catch(e){console.log(e)}
-                            }
-                            setSelectedOption([...selectedOption]);
-                            setNumberList([...numberList]);
-                    }
-                case 'string':
-                    let val = data.value.split('%')
-                    switch(type){
-                        case 'int':
-                            if(value === '' || value === '0'){
-                                numberList = numberList.filter(carat => {return carat.key !== key})
-                            }
-                            else{
-                                if(numberList?.filter(carat => {return carat.key === key && carat.value === val[0]}).length === 0){
-                                    numberList.push({key: key, value: val[0]})
-                                }
-                            }
-                        case 'bool':
-                            if(e.target.value === 'no'){
-                                val = 1 + Math.floor(val[0])/100;
-                                percentageList.push({key: key, value: val});
-                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-success is-medium', selectedValue: 'yes'} : option)
-                            }
-                            else{
-                                percentageList = percentageList.filter(perc => {return perc.key !== key});
-                                selectedOption = selectedOption.map(option => option.key === key ? {...option, css: 'button is-danger is-medium', selectedValue: 'no'} : option)
-                            }           
-                    }
-                    setNumberList([...numberList]);
-                    setSelectedOption([...selectedOption]);
-                    setPercentageList([...percentageList])
-            }
-        })
+                                break;
+                            case 'list':
+                                if(!percentageList.find(perc => perc.key === value)){
+                                    codeList.push({key: key});
+                                    val = 1 + Math.floor(val[0])/100;
+                                    percentageList = percentageList.push({key: value, value: val});
+                                }       
+                        }
+                        setCodeList([...codeList]);
+                        setNumberList([...numberList]);
+                        setSelectedOption([...selectedOption]);
+                        setPercentageList([...percentageList])
+                }
+            })
+        }
+        else{
+            percentageList = percentageList.filter(perc => perc.key !== value);
+            setPercentageList([...percentageList])
+        }
     }
 
     const createConfigurationComponent = (charatteristics) => {
@@ -189,6 +253,28 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
                             </div>
                             </>
                         )
+                    case 'list':
+                            if(option.options[0] !== 'none'){
+                                option.options.unshift('none');
+                            }
+                            return(
+                                <>
+                                <div className="column is-one-quarter">
+                                    <p className="title is-5">
+                                        <b> {option.key} </b>    
+                                    </p>
+                                    <div className = "select is-info is-medium"> 
+                                        <select 
+                                            name = 'grease' 
+                                            id = {option.key}
+                                            onChange = {(e) => {setVariables(e, option.type)}}
+                                        >
+                                            {option.options.map((grease, i) => <DropDownList key = {'typology_'+i} value = {grease}/>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                </>
+                            )
                 }
             })
             return (<> <div className="columns is-multiline"> {carat} </div></>)
@@ -248,6 +334,20 @@ const Configurazione = ({tipology,tipologyName, tipologyIndex, subcategory, char
                                 <section className = 'section'>
                                     <p className = 'title is-3'>
                                         € {cost}
+                                    </p>
+                                </section>
+                            </center>
+                        </div>
+                        <div className = 'box'>
+                            <center>
+                                <section className = 'has-background-light p-5'>
+                                    <p className = 'title is-3'>
+                                        Codice
+                                    </p>
+                                </section>
+                                <section className = 'section'>
+                                    <p className = 'title is-3'>
+                                        {code}
                                     </p>
                                 </section>
                             </center>
